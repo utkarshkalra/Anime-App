@@ -1,11 +1,6 @@
 const URL = 'http://localhost:5500/animes';
 
-getData();
-async function getData(){
-const res= await fetch(URL)
-const data=await res.json();
-  console.log(data);
-}
+
 
 document.querySelector("#btn").addEventListener("click", postData= async()=>{
 
