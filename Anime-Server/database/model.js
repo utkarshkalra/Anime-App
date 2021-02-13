@@ -6,6 +6,9 @@ const animeSchema=new mongoose.Schema({
     },
     animeDescription:{
         type:String
+    },
+    animePhoto:{
+        type:String
     }
 })
 
