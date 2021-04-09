@@ -24,22 +24,18 @@ route.get("/", async (req, res) => {
   res.status(200).json(animes);
 });
 
-route.put("/:id", (req, res) => {
-  if (!req.body) {
-    return res.status(400).send({ message: " empty data " });
+route.patch("/:id", async (req, res) => {
+
+  try {
+    const anime = await Anime.findByIdAndUpdate(req.params.id, req.body)
+    if (!anime) throw Error("something wrong !!");
+
+    res.status(200).json({ success: true });
+
+  } catch (err) {
+    res.status(400).json({ msg: err })
   }
 
-  const id = req.params.id;
-  Anime.findByIdAndUpdate(id, req.body, { useFindAndModify: false }).then(
-    (data) => {
-      console.log(data)
-      if (!data) {
-        res.status(404).send({ message: "cannot update anime" });
-      } else {
-        res.send(data);
-      }
-    }
-  );
 });
 
 route.delete("/:id", (req, res) => {

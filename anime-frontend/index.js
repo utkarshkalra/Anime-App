@@ -1,4 +1,33 @@
+
 const URL = "http://localhost:5555/animes";
+const wrap = document.querySelector("#wrapper");
+const element = document.getElementById("up");
+
+
+//adding scroll;
+
+window.smoothScroll = function (target) {
+  var scrollContainer = target;
+  do { //find scroll container
+    scrollContainer = scrollContainer.parentNode;
+    if (!scrollContainer) return;
+    scrollContainer.scrollTop += 1;
+  } while (scrollContainer.scrollTop == 0);
+
+  var targetY = 0;
+  do { //find the top of target relatively to the container
+    if (target == scrollContainer) break;
+    targetY += target.offsetTop;
+  } while (target = target.offsetParent);
+
+  scroll = function (c, a, b, i) {
+    i++; if (i > 30) return;
+    c.scrollTop = a + (b - a) / 30 * i;
+    setTimeout(function () { scroll(c, a, b, i); }, 20);
+  }
+  // start scrolling
+  scroll(scrollContainer, scrollContainer.scrollTop, targetY, 0);
+}
 
 getData();
 async function getData() {
@@ -6,15 +35,10 @@ async function getData() {
   const data = await res.json();
   console.log(data);
 
-  //showing data//
 
-  const element = document.getElementById("up");
-  const name = document.querySelector("#name");
-  const des = document.querySelector("#description");
-  const button = document.querySelector("#btn");
 
   data.forEach((item) => {
-    const wrap = document.querySelector("#wrapper");
+
 
     const card = document.createElement("div");
     const image = document.createElement("img");
@@ -34,6 +58,10 @@ async function getData() {
     deleteb.classList.add("btn", "btn-danger", "delete");
     updateb.classList.add("btn", "btn-secondary", "update");
 
+    updateb.id = "updateanime"
+    deleteb.id = "delanime"
+
+    cardbody.setAttribute('data-id', `${item._id}`);
 
     card.appendChild(image);
     card.appendChild(cardbody);
@@ -50,60 +78,81 @@ async function getData() {
 
     wrap.appendChild(card);
 
-    updateb.addEventListener("click", () => {
-      //console.log(item._id);
-      name.value = "";
-      des.value = "";
-      const id = item._id;
-      //element.style.display = "";
+  });
+}
 
-      name.value = item.animeName;
-      des.value = item.animeDescription;
 
-      button.addEventListener("click", () => {
-        const animeName = document.querySelector("#name").value;
-        const description = document.querySelector("#description").value;
+wrap.addEventListener("click", (e) => {
+  e.preventDefault();
+  //console.log(e.target);
+  let updatebutpress = e.target.id == "updateanime";
+  let delbutpress = e.target.id == "delanime";
 
-        const data = { animeName, description };
-        const options = {
 
-          body: JSON.stringify(data),
-          method: "PUT",
-        };
+  // DELETE ANIME //
 
-        fetch(`http://localhost:5555/animes/${id}`, options)
-          .then(res => res.json())
-          .then(res => console.log(res));
-      });
-    });
 
-    deleteb.addEventListener("click", () => {
-      const id = item._id;
+  if (delbutpress) {
+    const parent = e.target.parentElement;
+
+    let name = parent.querySelector(".card-title").textContent;
+
+    if (confirm(`do you want to delete ${name} card `)) {
+
+      const id = e.target.parentElement.dataset.id;
+
       const options = {
         method: "DELETE",
       };
 
-      fetch(`http://localhost:5555/animes/${id}`, options).then(res => res.json()).then(res => console.log(res));
+      fetch(`http://localhost:5555/animes/${id}`, options).then(res => res.json()).then(() => location.reload());
 
-      location.reload();
 
-    })
+    }
+  }
 
-  });
-}
 
-const updateData = (id, name, des) => {
-  const data = { name, des };
-  //console.log(data);
+  if (updatebutpress) {
+    element.style.display = "";
 
-  const options = {
+    const id = e.target.parentElement.dataset.id;
+    const parent = e.target.parentElement;
 
-    body: JSON.stringify(data),
-    method: "PUT",
-  };
+    let name = parent.querySelector(".card-title").textContent;
+    let des = parent.querySelector(".card-text").textContent;
+    if (confirm(`do u wanna update ${name} card `)) {
+      var updatename = document.getElementById("name");
+      var updatedes = document.getElementById("description");
+      var button = document.getElementById("btn");
+      updatename.value = name;
+      updatedes.value = des;
+      smoothScroll(element);
+      button.addEventListener("click", (e) => {
+        fetch(`${URL}/${id}`, {
+          method: "PATCH",
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            animeName: updatename.value,
+            animeDescription: updatedes.value
 
-  fetch(`http://localhost:5555/animes/${id}`, options)
-    .then(res => res.json())
-    .then(res => console.log(res));
+          })
+        })
+          .then(res => res.json())
+          .then(() => {
+            alert("updated!")
+            location.reload()
+          })
+      })
+    }
 
-};
+  }
+
+
+})
+
+
+
+
+
