@@ -10,7 +10,7 @@ getData();
 async function getData() {
   const res = await fetch(URL);
   const data = await res.json();
-  console.log(data);
+  //console.log(data);
 
   data.forEach((item) => {
 
@@ -22,15 +22,16 @@ async function getData() {
     const updateb = document.createElement("button");
     const deleteb = document.createElement("button");
 
-    card.classList.add("card", "mx-2", "my-2");
+    card.classList.add("card", "mx-3", "my-3");
     card.style = "width:18rem";
 
     image.classList.add("card-img-top");
-    cardbody.classList.add("card-body");
+    cardbody.classList.add("card-body", "d-flex", "flex-column");
     heading.classList.add("card-title");
     description.classList.add("card-text");
+
+    updateb.classList.add("btn", "btn-secondary", "update", "mt-auto");
     deleteb.classList.add("btn", "btn-danger", "delete");
-    updateb.classList.add("btn", "btn-secondary", "update");
 
     updateb.id = "updateanime"
     deleteb.id = "delanime"
@@ -44,7 +45,9 @@ async function getData() {
     cardbody.appendChild(updateb);
     cardbody.appendChild(deleteb);
 
-    image.src = "img/1.webp";
+
+
+    image.src = item.animeImage || "img/inf.png";
     heading.textContent = item.animeName;
     description.textContent = item.animeDescription;
     updateb.textContent = "Update";
@@ -54,6 +57,8 @@ async function getData() {
 
   });
 }
+
+
 
 
 wrap.addEventListener("click", (e) => {
@@ -84,6 +89,7 @@ wrap.addEventListener("click", (e) => {
 
     }
   }
+  //updateanime
 
 
   if (updatebutpress) {
@@ -94,16 +100,45 @@ wrap.addEventListener("click", (e) => {
 
     let name = parent.querySelector(".card-title").textContent;
     let des = parent.querySelector(".card-text").textContent;
+    let imagebox = parent.parentElement.querySelector(".card-img-top").src;
 
 
     if (confirm(`do u wanna update ${name} card `)) {
       var updatename = document.getElementById("name");
       var updatedes = document.getElementById("description");
+
       var button = document.getElementById("btn");
       updatename.value = name;
       updatedes.value = des;
+      animeImage = null;
+      function createimage() {
+        //console.log("hello")
+        let image = document.getElementById("image").files;
+
+        if (image.length > 0) {
+          //console.log("hello2")
+          var file = image[0];
+          var read = new FileReader();
+          read.readAsDataURL(file);
+          read.onload = (e) => {
+            animeImage = e.target.result;
+            //console.log(animeImage);
+          }
+
+        }
+      }
+
+      var inputFileToLoad = document.getElementById("image");
+      inputFileToLoad.addEventListener("change", function () {
+        createimage()
+      });
+
+
+
       document.body.scrollTop = 0;
       document.documentElement.scrollTop = 0;
+
+
       button.addEventListener("click", (e) => {
         fetch(`${URL}/${id}`, {
           method: "PATCH",
@@ -112,13 +147,15 @@ wrap.addEventListener("click", (e) => {
           },
           body: JSON.stringify({
             animeName: updatename.value,
-            animeDescription: updatedes.value
+            animeDescription: updatedes.value,
+            animeImage: animeImage || imagebox
+
 
           })
         })
           .then(res => res.json())
-          .then(() => {
-
+          .then((res) => {
+            //console.log(res);
             location.reload()
 
           })

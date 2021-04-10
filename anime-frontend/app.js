@@ -1,3 +1,25 @@
+function createimage() {
+  // console.log("hello")
+  let image = document.getElementById("image").files;
+
+  if (image.length > 0) {
+    // console.log("hello2")
+    var file = image[0];
+    var read = new FileReader();
+    read.readAsDataURL(file);
+    read.onload = (e) => {
+      animeImage = e.target.result;
+      //console.log(animeImage);
+    }
+
+  }
+}
+
+var inputFileToLoad = document.getElementById("image");
+inputFileToLoad.addEventListener("change", function () {
+  createimage()
+});
+
 
 
 document.querySelector("#btn").addEventListener(
@@ -5,8 +27,10 @@ document.querySelector("#btn").addEventListener(
   (postData = async () => {
     let animeName = document.getElementById("name").value;
     let animeDescription = document.getElementById("description").value;
-    let animeImage = document.getElementById("image");
-    const data = { animeName, animeDescription };
+
+
+
+    const data = { animeName, animeDescription, animeImage };
     const options = {
       method: "POST",
       headers: {
@@ -17,7 +41,6 @@ document.querySelector("#btn").addEventListener(
 
     const res = await fetch("http://localhost:5555/animes", options);
     const blob = await res.json();
-    console.log(blob);
-    // console.log("{ "+ animeName+" , "+animeDescription +" }");
+    //console.log(blob);
   })
 );

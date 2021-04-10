@@ -2,17 +2,18 @@ const express = require("express");
 const mongoose = require("mongoose");
 const Anime = require("../database/model");
 const route = express.Router();
-const app = express();
+
 
 route.post("/", async (req, res) => {
   if (!req.body) {
     res.status(400).send({ message: "Content cannot be empty" });
     return;
   }
-  const { animeName, animeDescription } = req.body;
+  const { animeName, animeDescription, animeImage } = req.body;
   let anime = {};
   anime.animeName = animeName;
   anime.animeDescription = animeDescription;
+  anime.animeImage = animeImage;
 
   let animeModel = new Anime(anime);
   await animeModel.save();
